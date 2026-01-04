@@ -33,6 +33,7 @@ function cn(...inputs) {
 
 const Navbar = ({ activePage, setPage, user, onLogout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,97 +43,139 @@ const Navbar = ({ activePage, setPage, user, onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const menuItems = ['Home', 'Analyse', 'Live', 'Track', 'Dashboard', 'Contact Us'];
+
   return (
-    <nav className={cn(
-      "flex items-center justify-between px-8 py-5 fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
-      isScrolled ? "bg-black/60 backdrop-blur-xl border-b border-white/5 py-4" : "bg-transparent py-6"
-    )}>
-      {/* Logo */}
-      <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage('landing')}>
-        <div className="bg-white p-1.5 rounded-full overflow-hidden w-10 h-10 flex items-center justify-center">
-          <img src="/logo.png" className="w-full h-full object-contain" alt="SatWatch AI" />
+    <>
+      <nav className={cn(
+        "flex items-center justify-between px-4 md:px-8 py-5 fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
+        isScrolled ? "bg-black/80 backdrop-blur-xl border-b border-white/5 py-4" : "bg-transparent py-6"
+      )}>
+        {/* Logo */}
+        <div className="flex items-center gap-2 cursor-pointer z-[110]" onClick={() => { setPage('landing'); setIsMobileMenuOpen(false); }}>
+          <div className="bg-white p-1.5 rounded-full overflow-hidden w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+            <img src="/logo.png" className="w-full h-full object-contain" alt="SatWatch AI" />
+          </div>
+          <span className="text-lg md:text-xl font-bold tracking-tight text-white">SatWatch AI</span>
         </div>
-        <span className="text-xl font-bold tracking-tight text-white">SatWatch AI</span>
-      </div>
 
-      {/* Center Nav - Pill Shape */}
-      <div className="hidden md:flex items-center bg-white/10 backdrop-blur-md rounded-full px-2 py-1.5 border border-white/10">
-        {['Home', 'Analyse', 'Live', 'Track', 'Dashboard', 'Contact Us'].map((item) => {
-          const slug = item.toLowerCase().replace(' ', '');
-          const isActive = activePage === slug || (slug === 'home' && activePage === 'landing');
+        {/* Center Nav - Pill Shape (Desktop) */}
+        <div className="hidden lg:flex items-center bg-white/10 backdrop-blur-md rounded-full px-2 py-1.5 border border-white/10">
+          {menuItems.map((item) => {
+            const slug = item.toLowerCase().replace(' ', '');
+            const isActive = activePage === slug || (slug === 'home' && activePage === 'landing');
 
-          return (
-            <button
-              key={item}
-              onClick={() => setPage(slug === 'home' ? 'landing' : slug)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                isActive
-                  ? "bg-white text-black shadow-lg"
-                  : "text-white/80 hover:text-white hover:bg-white/5"
-              )}
-            >
-              {item}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Auth Actions / Profile */}
-      <div className="flex items-center gap-4">
-        {!user ? (
-          <>
-            <button
-              onClick={() => setPage('login')}
-              className="hidden md:block text-sm font-medium text-white/70 hover:text-white transition-colors"
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => setPage('register')}
-              className="px-6 py-2.5 bg-white text-black rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-            >
-              Join
-            </button>
-          </>
-        ) : (
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:flex flex-col items-end mr-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Active Mission</span>
-              <span className="text-xs font-bold text-white/80">{user.email}</span>
-            </div>
-
-            <div className="relative group">
-              <button className="w-12 h-12 bg-white/10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 transition-all overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold">
-                  {user.email[0].toUpperCase()}
-                </div>
+            return (
+              <button
+                key={item}
+                onClick={() => setPage(slug === 'home' ? 'landing' : slug)}
+                className={cn(
+                  "px-4 xl:px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
+                  isActive
+                    ? "bg-white text-black shadow-lg"
+                    : "text-white/80 hover:text-white hover:bg-white/5"
+                )}
+              >
+                {item}
               </button>
+            );
+          })}
+        </div>
 
-              {/* Dropdown menu */}
-              <div className="absolute right-0 top-14 w-48 bg-[#0f0f0f] border border-white/10 rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-2xl backdrop-blur-xl">
-                <div className="p-3 border-b border-white/5 mb-2">
-                  <p className="text-[10px] uppercase font-black text-white/20 tracking-widest">Logged in as</p>
-                  <p className="text-xs font-bold truncate">{user.email}</p>
+        {/* Right Side - Auth & Hamburger */}
+        <div className="flex items-center gap-2 md:gap-4 z-[110]">
+          {!user ? (
+            <div className="flex items-center gap-2 md:gap-4">
+              <button
+                onClick={() => setPage('login')}
+                className="hidden sm:block text-sm font-medium text-white/70 hover:text-white transition-colors"
+              >
+                Log in
+              </button>
+              <button
+                onClick={() => setPage('register')}
+                className="px-4 md:px-6 py-2 md:py-2.5 bg-white text-black rounded-full text-xs md:text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              >
+                Join
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col items-end mr-2 text-right">
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Active Mission</span>
+                <span className="text-[11px] font-bold text-white/80 max-w-[100px] truncate">{user.email}</span>
+              </div>
+
+              <div className="relative group">
+                <button className="w-10 h-10 md:w-12 md:h-12 bg-white/10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 transition-all overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-sm">
+                    {user.email[0].toUpperCase()}
+                  </div>
+                </button>
+                {/* Desktop Dropdown */}
+                <div className="absolute right-0 top-14 w-48 bg-[#0f0f0f] border border-white/10 rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-2xl backdrop-blur-xl hidden md:block">
+                  <div className="p-3 border-b border-white/5 mb-2">
+                    <p className="text-[10px] uppercase font-black text-white/20 tracking-widest">Logged in as</p>
+                    <p className="text-xs font-bold truncate">{user.email}</p>
+                  </div>
+                  <button onClick={() => setPage('profile')} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                    <User className="w-4 h-4" /> Profile Info
+                  </button>
+                  <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+                    Sign Out
+                  </button>
                 </div>
-                <button
-                  onClick={() => setPage('profile')}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                >
-                  <User className="w-4 h-4" /> Profile Info
-                </button>
-                <button
-                  onClick={onLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
-                >
-                  Sign Out
-                </button>
               </div>
             </div>
+          )}
+
+          {/* Hamburger Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={cn(
+        "fixed inset-0 z-[90] bg-[#0a0a0a] transition-all duration-500 flex flex-col pt-32 px-8 lg:hidden",
+        isMobileMenuOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-10"
+      )}>
+        <div className="flex flex-col gap-6">
+          {menuItems.map((item, idx) => {
+            const slug = item.toLowerCase().replace(' ', '');
+            const isActive = activePage === slug || (slug === 'home' && activePage === 'landing');
+            return (
+              <button
+                key={item}
+                onClick={() => { setPage(slug === 'home' ? 'landing' : slug); setIsMobileMenuOpen(false); }}
+                className={cn(
+                  "text-3xl font-bold tracking-tighter text-left transition-all",
+                  isActive ? "text-white translate-x-4" : "text-white/30 hover:text-white"
+                )}
+                style={{ transitionDelay: `${idx * 50}ms` }}
+              >
+                {item}
+              </button>
+            );
+          })}
+        </div>
+
+        {user && (
+          <div className="mt-auto mb-12 border-t border-white/10 pt-8 flex flex-col gap-4">
+            <button onClick={() => { setPage('profile'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 text-white/60 text-xl font-bold">
+              <User className="w-6 h-6" /> Profile Info
+            </button>
+            <button onClick={() => { onLogout(); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 text-red-400 text-xl font-bold">
+              Sign Out
+            </button>
           </div>
         )}
       </div>
-    </nav>
+    </>
   );
 };
 
@@ -144,28 +187,28 @@ const HeroLanding = ({ onStart }) => {
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-      <div className="container mx-auto px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-medium tracking-wider text-blue-400">
+      <div className="container mx-auto px-4 md:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6 md:space-y-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] md:text-xs font-medium tracking-wider text-blue-400">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
             AI-POWERED SATELLITE ANALYSIS
           </div>
 
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9]">
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9]">
             Seamless <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-white">
               Global Coverage
             </span>
           </h1>
 
-          <p className="text-xl text-white/60 max-w-lg leading-relaxed">
+          <p className="text-lg md:text-xl text-white/60 max-w-lg leading-relaxed">
             Detect infrastructure changes, deforestation, and urban expansion instantly with our military-grade AI models.
           </p>
 
-          <div className="flex items-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
             <button
               onClick={onStart}
-              className="h-14 px-8 rounded-full bg-white text-black font-semibold text-lg hover:scale-105 transition-transform flex items-center gap-2 group"
+              className="h-14 px-8 rounded-full bg-white text-black font-semibold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-2 group"
             >
               Get started
               <div className="bg-black text-white rounded-full p-1 group-hover:rotate-45 transition-transform">
@@ -229,30 +272,30 @@ const HeroLanding = ({ onStart }) => {
 const GISAssistant = ({ onTryNow }) => {
   return (
     <section className="bg-[#0a0a0a] py-24 px-8 relative">
-      <div className="container mx-auto">
-        <div className="relative rounded-[40px] overflow-hidden min-h-[700px] border border-white/5 flex items-center shadow-3xl">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="relative rounded-[40px] overflow-hidden min-h-[600px] md:min-h-[700px] border border-white/5 flex items-center justify-center md:justify-start shadow-3xl">
           {/* Background Image */}
           <img
             src="/land_viewer.png"
             className="absolute inset-0 w-full h-full object-cover opacity-80"
             alt="Mount Rainier 3D GIS View"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
 
           {/* Text Card */}
-          <div className="relative z-10 max-w-2xl ml-12 p-12 bg-[#1a1c23]/90 backdrop-blur-xl border border-white/10 rounded-[32px] space-y-8 shadow-2xl">
+          <div className="relative z-10 max-w-2xl m-4 md:ml-12 p-6 md:p-12 bg-[#1a1c23]/90 backdrop-blur-xl border border-white/10 rounded-[32px] space-y-6 md:space-y-8 shadow-2xl">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
                 <Layers className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-black uppercase tracking-[4px] text-white">Land Viewer</h3>
+              <h3 className="text-xl md:text-2xl font-black uppercase tracking-[4px] text-white">Land Viewer</h3>
             </div>
 
-            <p className="text-white/60 text-sm leading-relaxed font-bold border-l-2 border-blue-500/50 pl-4">
+            <p className="text-white/60 text-xs md:text-sm leading-relaxed font-bold border-l-2 border-blue-500/50 pl-4">
               Your online GIS assistant that provides a set of specific technologies to extract valuable information from big data, applicable to real business tasks.
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {[
                 { title: "A Huge Catalog of Satellite Imagery", desc: "Access both free and commercial satellite images from an unlimited scope of sensors, providing quick search and easy-to-access storage." },
                 { title: "Processing Functions", desc: "Equipped with Mosaic, Time-lapse, Band combinations, and Time Series Analysis for complex orbital data processing." },
@@ -261,27 +304,28 @@ const GISAssistant = ({ onTryNow }) => {
                 <div key={idx} className="flex gap-4">
                   <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-1" />
                   <div className="space-y-1">
-                    <h4 className="text-xs font-black uppercase tracking-widest text-white">{item.title}</h4>
-                    <p className="text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
+                    <h4 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-white">{item.title}</h4>
+                    <p className="text-[10px] md:text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <button
                 onClick={onTryNow}
-                className="px-10 py-4 bg-[#ff7a45] hover:bg-[#ff9c6e] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95"
+                className="px-10 py-4 bg-[#ff7a45] hover:bg-[#ff9c6e] text-white font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95 text-center"
               >
                 Try Now
               </button>
-              <button className="px-10 py-4 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs rounded-xl transition-all">
+              <button className="px-10 py-4 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl transition-all text-center">
                 More Info
               </button>
             </div>
           </div>
         </div>
       </div>
+
     </section>
   );
 };
@@ -289,36 +333,37 @@ const GISAssistant = ({ onTryNow }) => {
 const ImageryShowcase = ({ onTryNow }) => {
   return (
     <section className="bg-[#0a0a0a] py-24 px-8 relative">
-      <div className="container mx-auto">
-        <div className="relative rounded-[40px] overflow-hidden min-h-[600px] border border-white/5 flex items-center shadow-3xl">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="relative rounded-[40px] overflow-hidden min-h-[500px] md:min-h-[600px] border border-white/5 flex items-center justify-center md:justify-start shadow-3xl">
           {/* Background Image */}
           <img
             src="/imagery_showcase.png"
             className="absolute inset-0 w-full h-full object-cover opacity-80"
             alt="High Res Satellite Imagery"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
 
           {/* Text Card */}
-          <div className="relative z-10 max-w-xl ml-12 p-12 bg-[#1a1c23]/95 backdrop-blur-xl border border-white/10 rounded-[32px] space-y-6 shadow-2xl">
-            <h3 className="text-4xl font-bold tracking-tighter text-white">High Resolution Imagery</h3>
-            <p className="text-white/50 text-sm leading-relaxed font-medium">
-              As a distributor of satellite imagery, SatWatch AI offers both historical and up-to-date high-resolution images from top providers. If you need high accuracy and frequency, ordering commercial imagery directly from our platform is a cost-effective proposition. We provide versatile solutions ranging from forestry to tactical disaster relief operations.
+          <div className="relative z-10 max-w-xl m-4 md:ml-12 p-6 md:p-12 bg-[#1a1c23]/95 backdrop-blur-xl border border-white/10 rounded-[32px] space-y-4 md:space-y-6 shadow-2xl">
+            <h3 className="text-2xl md:text-4xl font-bold tracking-tighter text-white">High Resolution Imagery</h3>
+            <p className="text-white/50 text-xs md:text-sm leading-relaxed font-medium">
+              As a distributor of satellite imagery, SatWatch AI offers both historical and up-to-date high-resolution images from top providers. If you need high accuracy and frequency, ordering commercial imagery directly from our platform is a cost-effective proposition.
             </p>
-            <div className="flex items-center gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <button
                 onClick={onTryNow}
-                className="px-10 py-4 bg-[#ff7a45] hover:bg-[#ff9c6e] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95"
+                className="px-10 py-4 bg-[#ff7a45] hover:bg-[#ff9c6e] text-white font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95 text-center"
               >
                 Try Now
               </button>
-              <button className="px-10 py-4 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs rounded-xl transition-all">
+              <button className="px-10 py-4 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl transition-all text-center">
                 More Info
               </button>
             </div>
           </div>
         </div>
       </div>
+
     </section>
   );
 };
@@ -592,7 +637,7 @@ const AnalysisDashboard = ({ onSaveHistory, analysisState, setAnalysisState }) =
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-      <div className="container mx-auto px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="container mx-auto px-4 md:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Control Panel */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col gap-6 flex-1">
@@ -713,7 +758,7 @@ const AnalysisDashboard = ({ onSaveHistory, analysisState, setAnalysisState }) =
               </div>
             )}
 
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-[300px] md:min-h-[500px]">
               {!result ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 animate-pulse">
